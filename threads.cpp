@@ -4,8 +4,9 @@
 
 // Define a function that will be executed by the thread
 void printNumbers() {
+    std::cout << "Thread 1 ID: " << std::this_thread::get_id() << std::endl;
     // Print numbers from 0 to 9
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 3; i++) {
         // Use std::cout to print the numbers
         std::cout << "Thread 1: " << i << std::endl;
     }
@@ -13,8 +14,9 @@ void printNumbers() {
 
 // Define another function that will be executed by another thread
 void printLetters() {
+    std::cout << "Thread 2 ID: " << std::this_thread::get_id() << std::endl;
     // Print letters from A to J
-    for (char c = 'A'; c <= 'J'; c++) {
+    for (char c = 'A'; c <= 'C'; c++) {
         // Use std::cout to print the letters
         std::cout << "Thread 2: " << c << std::endl;
     }
@@ -28,10 +30,21 @@ int main() {
     // Create another thread that will execute the printLetters function
     std::thread thread2(printLetters);
 
+
+    if (thread1.joinable()) {
+        std::cout << "Thread is joinable" << std::endl;
+    } else {
+        std::cout << "Thread is not joinable" << std::endl;
+    }
+
     // Wait for thread1 to finish execution using join()
     // This will block the main thread until thread1 finishes
     thread1.join();
-
+    if (thread1.joinable()) {
+        std::cout << "Thread is joinable" << std::endl;
+    } else {
+        std::cout << "Thread is not joinable" << std::endl;
+    }
     // Wait for thread2 to finish execution using join()
     // This will block the main thread until thread2 finishes
     thread2.join();
@@ -42,6 +55,9 @@ int main() {
     // In other words, whether you call thread1.join() before thread2.join() or vice versa, the program will still wait for both threads to finish executing before continuing.
 
     // Return 0 to indicate successful execution
+
+
+
     return 0;
 }
 
@@ -117,6 +133,42 @@ Here are some reasons why the join() operation is necessary:
 3. Error handling:
    The join() operation can also be used for error handling. If a thread encounters an exception or an error, the join() operation can be used to wait for the thread to finish executing and then handle the error in the calling thread.
 
+Joinable
+Note that a thread is joinable if:
+
+1. It has not been joined yet (i.e., join() has not been called on it)
+2. It has not been detached (i.e., detach() has not been called on it)
+3. It is not a default-constructed thread object (i.e., it has been constructed with a valid function or lambda)
+
+If you try to join a non-joinable thread, the program will terminate. Therefore, it's a good practice to check if a thread is joinable before attempting to join it.
+
+********************************************************************************************************************************
+                                                Properly constructed Thread                                                       
+********************************************************************************************************************************
+When a thread is "properly constructed", it means that it has been created with a valid function or lambda that will be executed by the thread.
+
+A properly constructed thread is joinable because it has a valid execution context, meaning that it has a function or lambda that can be executed, and it has not been joined or detached yet.
+
+In other words, a properly constructed thread is in a state where it can be joined, meaning that the main thread can wait for it to finish execution using the join() function.
+Here's an example of a properly constructed thread:
+
+void myFunction() {
+    // code to be executed by the thread
+}
+
+int main() {
+    std::thread t(myFunction); // properly constructed thread
+    // ...
+}
+In this example, the thread t is properly constructed because it has a valid function myFunction that will be executed by the thread. This thread is joinable, meaning that the main thread can wait for it to finish execution using t.join().
+
+On the other hand, a default-constructed thread (i.e., a thread constructed without a function or lambda) is not joinable:
+
+int main() {
+    std::thread t; // default-constructed thread
+    // ...
+}
+In this case, the thread t is not joinable because it does not have a valid execution context. Attempting to join this thread would result in undefined behavior.
 */
 
 
